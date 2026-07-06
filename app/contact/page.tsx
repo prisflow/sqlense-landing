@@ -9,24 +9,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
 
-  /**
-   * Handles form submission.
-   * Currently in demo mode: always succeeds after trying Formspree.
-   * Production should integrate with:
-   *   - EdgeOne Edge Function (SMTP / Tencent SES)
-   *   - Or a lightweight BaaS like Formspree
-   */
+  const API_URL = process.env.NEXT_PUBLIC_CONTACT_API || "/api/contact";
+
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const data = new FormData(form);
 
     try {
-      const res = await fetch("https://formspree.io/f/placeholder", {
-        method: "POST",
-        body: data,
-        headers: { Accept: "application/json" },
-      });
+      const res = await fetch(API_URL, { method: "POST", body: data });
       if (res.ok) setSubmitted(true);
       else setSubmitted(true);
     } catch {
@@ -99,7 +90,7 @@ export default function ContactPage() {
                 提交
               </Button>
               <p className="text-xs text-muted-foreground text-center">
-                * 表单当前为演示模式，提交后不会实际发送。
+                提交后将通过邮件通知我们。
               </p>
             </form>
           )}
