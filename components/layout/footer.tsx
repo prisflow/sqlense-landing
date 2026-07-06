@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL || "https://app.sqlense.prisflow.com";
+
 export function Footer() {
   return (
     <footer className="border-t py-10 mt-20">
@@ -36,7 +38,7 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <a href="https://sqlense.prisflow.com/" className="hover:text-foreground transition-colors">
+                <a href={DEMO_URL} className="hover:text-foreground transition-colors">
                   前往体验
                 </a>
               </li>

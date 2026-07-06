@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { useState } from "react";
 
+const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL || "https://app.sqlense.prisflow.com";
+
 const navLinks = [
-  { href: "https://sqlense.prisflow.com/", label: "演示站" },
+  { href: DEMO_URL, label: "演示站" },
   { href: "/#features", label: "功能" },
   { href: "/#workflow", label: "工作流程" },
   { href: "/blog", label: "博客" },

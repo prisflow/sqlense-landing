@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL || "https://app.sqlense.prisflow.com";
+
 export function Cta() {
   return (
     <section className="py-16 md:py-24">
@@ -13,7 +15,7 @@ export function Cta() {
           </p>
           <div className="mt-8 flex items-center justify-center gap-4">
             <a
-              href="https://sqlense.prisflow.com/"
+              href={DEMO_URL}
               className="inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-primary text-primary-foreground text-sm font-medium whitespace-nowrap transition-all h-9 gap-1.5 px-2.5 hover:bg-primary/80"
             >
               前往体验
