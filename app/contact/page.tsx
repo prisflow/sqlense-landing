@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function ContactPage() {
-  const [submitted, setSubmitted] = useState(false);
+  const [state, setState] = useState<"idle" | "loading" | "ok" | "error">("idle");
 
   const API_URL = process.env.NEXT_PUBLIC_CONTACT_API || "/api/contact";
 
@@ -15,13 +15,13 @@ export default function ContactPage() {
     e.preventDefault();
     const form = e.currentTarget;
     const data = new FormData(form);
+    setState("loading");
 
     try {
       const res = await fetch(API_URL, { method: "POST", body: data });
-      if (res.ok) setSubmitted(true);
-      else setSubmitted(true);
+      setState(res.ok ? "ok" : "error");
     } catch {
-      setSubmitted(true);
+      setState("error");
     }
   }
 
@@ -42,7 +42,7 @@ export default function ContactPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          {submitted ? (
+          {state === "ok" ? (
             <div className="text-center py-8">
               <p className="font-medium">感谢您的关注！</p>
               <p className="text-sm text-muted-foreground mt-1">
@@ -86,8 +86,11 @@ export default function ContactPage() {
                   placeholder="说说您的需求..."
                 />
               </div>
-              <Button type="submit" className="w-full">
-                提交
+              {state === "error" && (
+                <p className="text-sm text-red-500">提交失败，请稍后重试或直接发邮件联系我们。</p>
+              )}
+              <Button type="submit" className="w-full" disabled={state === "loading"}>
+                {state === "loading" ? "提交中..." : "提交"}
               </Button>
               <p className="text-xs text-muted-foreground text-center">
                 提交后将通过邮件通知我们。
