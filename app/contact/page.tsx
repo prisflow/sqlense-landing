@@ -1,0 +1,110 @@
+"use client";
+
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+
+export default function ContactPage() {
+  const [submitted, setSubmitted] = useState(false);
+
+  /**
+   * Handles form submission.
+   * Currently in demo mode: always succeeds after trying Formspree.
+   * Production should integrate with:
+   *   - EdgeOne Edge Function (SMTP / Tencent SES)
+   *   - Or a lightweight BaaS like Formspree
+   */
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const data = new FormData(form);
+
+    try {
+      const res = await fetch("https://formspree.io/f/placeholder", {
+        method: "POST",
+        body: data,
+        headers: { Accept: "application/json" },
+      });
+      if (res.ok) setSubmitted(true);
+      else setSubmitted(true);
+    } catch {
+      setSubmitted(true);
+    }
+  }
+
+  return (
+    <div className="container mx-auto max-w-3xl px-4 py-12">
+      <div className="text-center mb-10">
+        <h1 className="text-3xl font-bold tracking-tight mb-2">联系我们</h1>
+        <p className="text-muted-foreground">
+          想要了解更多？填写表单，我们会尽快与您联系。
+        </p>
+      </div>
+
+      <Card className="max-w-lg mx-auto border-0 shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg">申请演示</CardTitle>
+          <CardDescription>
+            提交后我们将通过邮件与您沟通演示时间。
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {submitted ? (
+            <div className="text-center py-8">
+              <p className="font-medium">感谢您的关注！</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                我们会尽快与您联系。
+              </p>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label htmlFor="name" className="text-sm font-medium block mb-1.5">
+                  姓名
+                </label>
+                <Input id="name" name="name" required placeholder="您的姓名" />
+              </div>
+              <div>
+                <label htmlFor="email" className="text-sm font-medium block mb-1.5">
+                  邮箱
+                </label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="your@email.com"
+                />
+              </div>
+              <div>
+                <label htmlFor="institution" className="text-sm font-medium block mb-1.5">
+                  单位 / 学校
+                </label>
+                <Input id="institution" name="institution" placeholder="XX 大学" />
+              </div>
+              <div>
+                <label htmlFor="message" className="text-sm font-medium block mb-1.5">
+                  留言
+                </label>
+                <Textarea
+                  id="message"
+                  name="message"
+                  rows={4}
+                  placeholder="说说您的需求..."
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                提交
+              </Button>
+              <p className="text-xs text-muted-foreground text-center">
+                * 表单当前为演示模式，提交后不会实际发送。
+              </p>
+            </form>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
