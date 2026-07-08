@@ -42,7 +42,7 @@ export async function onRequestPost(context) {
 
     const now = new Date();
     const timestamp = Math.floor(now.getTime() / 1000).toString();
-    const date = now.toISOString().slice(0, 10).replace(/-/g, "");
+    const date = now.toISOString().slice(0, 10);
 
     const payload = {
       FromEmailAddress: SES_FROM,
@@ -58,14 +58,14 @@ export async function onRequestPost(context) {
     const body = JSON.stringify(payload);
     debug("SES 请求体", payload);
 
-    const signedHeaders = "content-type;host";
-    const canonicalHeaders = "content-type:application/json\nhost:ses.tencentcloudapi.com\n";
+    const signedHeaders = "content-type;host;x-tc-action";
+    const canonicalHeaders = "content-type:application/json\nhost:ses.tencentcloudapi.com\nx-tc-action:sendemail\n";
     const hashedPayload = await sha256(body);
     const canonicalRequest = `POST\n/\n\n${canonicalHeaders}\n${signedHeaders}\n${hashedPayload}`;
-    const credentialScope = `${date}/${region}/${SERVICE}/tc3_request`;
+    const credentialScope = `${date}/${SERVICE}/tc3_request`;
     const stringToSign = `${ALGORITHM}\n${timestamp}\n${credentialScope}\n${await sha256(canonicalRequest)}`;
 
-    const sk = await hmac(await hmac(await hmac(await hmac(`TC3${SES_SECRET_KEY}`, date), region), SERVICE), "tc3_request");
+    const sk = await hmac(await hmac(await hmac(`TC3${SES_SECRET_KEY}`, date), SERVICE), "tc3_request");
     const signature = await hmacHex(sk, stringToSign);
 
     debug("签名完成", { timestamp, date, credentialScope });
@@ -75,7 +75,7 @@ export async function onRequestPost(context) {
     const sesRes = await fetch("https://ses.tencentcloudapi.com", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
+        "Content-Type": "application/json; charset=utf-8",
         Host: "ses.tencentcloudapi.com",
         Authorization: authorization,
         "X-TC-Action": "SendEmail",
@@ -87,10 +87,12 @@ export async function onRequestPost(context) {
     });
 
     const sesBody = await sesRes.text();
-    debug("SES 响应", { status: sesRes.status, body: sesBody });
+    const sesJson = JSON.parse(sesBody);
+    const hasError = sesJson?.Response?.Error;
+    debug("SES 响应", { status: sesRes.status, body: sesJson });
 
-    if (!sesRes.ok) {
-      return json({ ok: false, error: sesBody }, 500, log);
+    if (hasError) {
+      return json({ ok: false, error: hasError.Message }, 500, log);
     }
 
     debug("发送成功");
