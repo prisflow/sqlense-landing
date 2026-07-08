@@ -32,7 +32,7 @@ export async function onRequestPost(context) {
     debug("表单字段", { name, email, institution });
 
     const { SES_SECRET_ID, SES_SECRET_KEY, SES_REGION, SES_FROM, SES_TO, SES_TEMPLATE_ID } = env;
-    const region = SES_REGION || "ap-guangzhou";
+    const region = SES_REGION || "ap-hongkong";
 
     if (!SES_SECRET_ID || !SES_SECRET_KEY || !SES_FROM || !SES_TO || !SES_TEMPLATE_ID) {
       return json({ error: "环境变量配置不完整" }, 500, log);
