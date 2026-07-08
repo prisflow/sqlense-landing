@@ -75,7 +75,7 @@ export async function onRequestPost(context) {
     const sesRes = await fetch("https://ses.tencentcloudapi.com", {
       method: "POST",
       headers: {
-        "Content-Type": "application/json; charset=utf-8",
+        "Content-Type": "application/json",
         Host: "ses.tencentcloudapi.com",
         Authorization: authorization,
         "X-TC-Action": "SendEmail",
