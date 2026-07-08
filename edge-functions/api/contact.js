@@ -1,4 +1,4 @@
-// Edge Function — 联系表单 → SES 邮件（模板模式）
+// Edge Function — 联系表单 → SES 邮件
 // 环境变量：SES_SECRET_ID, SES_SECRET_KEY, SES_REGION, SES_FROM, SES_TO, SES_TEMPLATE_ID
 
 const SERVICE = "ses";
@@ -8,17 +8,8 @@ const ALGORITHM = "TC3-HMAC-SHA256";
 export async function onRequestPost(context) {
   const req = context.request;
   const env = context.env;
-  const log = [];
-
-  function debug(msg, data) {
-    const line = data ? `${msg}: ${JSON.stringify(data)}` : msg;
-    log.push(line);
-    console.log(line);
-  }
 
   try {
-    debug("收到表单请求");
-
     const form = await req.formData();
     const name = (form.get("name") || "").trim();
     const email = (form.get("email") || "").trim();
@@ -26,19 +17,15 @@ export async function onRequestPost(context) {
     const message = (form.get("message") || "").trim();
 
     if (!name || !email) {
-      return json({ error: "姓名和邮箱必填" }, 400, log);
+      return new Response(JSON.stringify({ error: "姓名和邮箱必填" }), { status: 400 });
     }
-
-    debug("表单字段", { name, email, institution });
 
     const { SES_SECRET_ID, SES_SECRET_KEY, SES_REGION, SES_FROM, SES_TO, SES_TEMPLATE_ID } = env;
     const region = SES_REGION || "ap-hongkong";
 
     if (!SES_SECRET_ID || !SES_SECRET_KEY || !SES_FROM || !SES_TO || !SES_TEMPLATE_ID) {
-      return json({ error: "环境变量配置不完整" }, 500, log);
+      return new Response(JSON.stringify({ error: "配置不完整" }), { status: 500 });
     }
-
-    debug("环境变量", { hasId: true, hasKey: true, region, from: SES_FROM, to: SES_TO, tid: SES_TEMPLATE_ID });
 
     const now = new Date();
     const timestamp = Math.floor(now.getTime() / 1000).toString();
@@ -56,8 +43,6 @@ export async function onRequestPost(context) {
     };
 
     const body = JSON.stringify(payload);
-    debug("SES 请求体", payload);
-
     const signedHeaders = "content-type;host;x-tc-action";
     const canonicalHeaders = "content-type:application/json\nhost:ses.tencentcloudapi.com\nx-tc-action:sendemail\n";
     const hashedPayload = await sha256(body);
@@ -67,8 +52,6 @@ export async function onRequestPost(context) {
 
     const sk = await hmac(await hmac(await hmac(`TC3${SES_SECRET_KEY}`, date), SERVICE), "tc3_request");
     const signature = await hmacHex(sk, stringToSign);
-
-    debug("签名完成", { timestamp, date, credentialScope });
 
     const authorization = `${ALGORITHM} Credential=${SES_SECRET_ID}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
 
@@ -89,26 +72,15 @@ export async function onRequestPost(context) {
     const sesBody = await sesRes.text();
     const sesJson = JSON.parse(sesBody);
     const hasError = sesJson?.Response?.Error;
-    debug("SES 响应", { status: sesRes.status, body: sesJson });
 
     if (hasError) {
-      return json({ ok: false, error: hasError.Message }, 500, log);
+      return new Response(JSON.stringify({ error: hasError.Message }), { status: 500 });
     }
 
-    debug("发送成功");
-    return json({ ok: true, message: "已发送" }, 200, log);
+    return new Response(JSON.stringify({ ok: true }), { status: 200 });
   } catch (e) {
-    debug("异常", { message: e.message, stack: e.stack });
-    return json({ error: e.message }, 500, log);
+    return new Response(JSON.stringify({ error: e.message }), { status: 500 });
   }
-}
-
-function json(data, status, log) {
-  data._debug = log;
-  return new Response(JSON.stringify(data, null, 2), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
 }
 
 async function sha256(data) {
