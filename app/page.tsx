@@ -1,3 +1,5 @@
+import { Aurora } from "@/components/landing/aurora";
+import { SmoothScroll } from "@/components/landing/smooth-scroll";
 import { Hero } from "@/components/landing/hero";
 import { Features } from "@/components/landing/features";
 import { Scenarios } from "@/components/landing/scenarios";

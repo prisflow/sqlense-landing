@@ -1,3 +1,5 @@
+import { Reveal } from "./reveal";
+
 const scenarios = [
   {
     title: "高校数据库课程",

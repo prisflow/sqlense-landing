@@ -1,3 +1,5 @@
+import { Reveal } from "./reveal";
+
 const steps = [
   {
     step: "1",

@@ -1,3 +1,4 @@
+import { Reveal } from "./reveal";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 const features = [
