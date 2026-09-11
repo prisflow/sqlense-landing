@@ -6,6 +6,7 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight, ArrowUpRight, Database } from "lucide-react";
 
 const DEMO_URL = process.env.NEXT_PUBLIC_DEMO_URL || "https://app.sqlense.prisflow.com";
@@ -17,6 +18,9 @@ export function Hero() {
     const el = ref.current;
     if (!el) return;
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    // ScrollTrigger 必须在本组件内注册（不能依赖其他组件的注册时序）
+    gsap.registerPlugin(ScrollTrigger);
 
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
