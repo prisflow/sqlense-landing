@@ -141,3 +141,9 @@
   background-size: 56px 56px;
   mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 75%);
 }
+
+/* ===== GSAP 入场动画初态（SSG 首帧即隐藏，杜绝闪现；由 reveal.tsx 的 to 动画揭示；noscript 兜底恢复） ===== */
+[data-reveal-item] {
+  opacity: 0;
+  transform: translateY(24px);
+}

@@ -20,6 +20,9 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" className="h-full antialiased">
       <body className="min-h-full flex flex-col font-sans">
+        <noscript>
+          <style>{`[data-hero-badge],[data-hero-title] > span,[data-hero-sub],[data-hero-cta] > *,[data-hero-meta] > *,[data-reveal-item]{opacity:1 !important;transform:none !important}`}</style>
+        </noscript>
         <Navbar />
         <main className="flex-1">{children}</main>
         <Footer />

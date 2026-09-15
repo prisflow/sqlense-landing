@@ -38,12 +38,12 @@ export function Reveal({ children, className, delay = 0, y = 32, stagger = 0 }: 
 
     const ctx = gsap.context(() => {
       gsap.registerPlugin(ScrollTrigger);
-      gsap.fromTo(
+      // 初态由 CSS/内联样式承载（SSG 首帧即隐藏，杜绝闪现）；这里只做 to
+      gsap.to(
         targets,
-        { y, opacity: 0 },
         {
-          y: 0,
           opacity: 1,
+          y: 0,
           duration: 0.9,
           delay,
           stagger: stagger > 0 ? stagger : 0,
@@ -56,7 +56,12 @@ export function Reveal({ children, className, delay = 0, y = 32, stagger = 0 }: 
   }, [delay, y, stagger]);
 
   return (
-    <div ref={ref} className={className}>
+    <div
+      ref={ref}
+      className={className}
+      // stagger=0 时隐藏态挂在外层（SSG 首帧即隐藏，杜绝闪现）；stagger>0 时由 [data-reveal-item] 的全局初态承载
+      style={stagger > 0 ? undefined : { opacity: 0, transform: `translateY(${y}px)` }}
+    >
       {children}
     </div>
   );
